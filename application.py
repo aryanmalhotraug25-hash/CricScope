@@ -641,61 +641,7 @@ team_data = {
     "Sunrisers Hyderabad": {
         "logo": "http://assets.designhill.com/design-blog/wp-content/uploads/2025/03/8-4.jpg",
         "abbr": "SRH", "color": "#f97316"
-    },
-    # Franchises created after training data cutoff
-    "Lucknow Super Giants": {
-        "logo": "https://bcciplayerimages.s3.ap-south-1.amazonaws.com/ipl/LSG/Logos/Roundbig/LSGbig.png",
-        "abbr": "LSG", "color": "#00A3E0"
-    },
-    "Gujarat Titans": {
-        "logo": "https://bcciplayerimages.s3.ap-south-1.amazonaws.com/ipl/GT/Logos/Roundbig/GTbig.png",
-        "abbr": "GT", "color": "#1C2951"
-    },
-    # Defunct franchises that appear in the training data
-    "Deccan Chargers": {
-        "logo": "",
-        "abbr": "DCH", "color": "#1B3A7A"
-    },
-    "Pune Warriors India": {
-        "logo": "",
-        "abbr": "PWI", "color": "#00205B"
-    },
-    "Rising Pune Supergiant": {
-        "logo": "",
-        "abbr": "RPS", "color": "#8B2FC9"
-    },
-    "Gujarat Lions": {
-        "logo": "",
-        "abbr": "GL", "color": "#E8501A"
-    },
-    "Kochi Tuskers Kerala": {
-        "logo": "",
-        "abbr": "KTK", "color": "#1B5E20"
-    },
-}
-
-# Maps the UI display name for each team to the name string the pipeline was
-# trained on. Punjab Kings was renamed from Kings XI Punjab in 2021 but the
-# training data uses the historical name, so the OneHotEncoder must receive it.
-# Lucknow Super Giants and Gujarat Titans joined after the training data cutoff
-# and are not represented in the encoder; they are mapped to None so the
-# prediction block can detect and warn about unsupported matchups.
-UI_TO_MODEL_NAME = {
-    "Chennai Super Kings":         "Chennai Super Kings",
-    "Delhi Capitals":              "Delhi Capitals",
-    "Punjab Kings":                "Kings XI Punjab",
-    "Kolkata Knight Riders":       "Kolkata Knight Riders",
-    "Mumbai Indians":              "Mumbai Indians",
-    "Rajasthan Royals":            "Rajasthan Royals",
-    "Royal Challengers Bangalore": "Royal Challengers Bangalore",
-    "Sunrisers Hyderabad":         "Sunrisers Hyderabad",
-    "Lucknow Super Giants":        None,
-    "Gujarat Titans":              None,
-    "Deccan Chargers":             "Deccan Chargers",
-    "Pune Warriors India":         "Pune Warriors",
-    "Rising Pune Supergiant":      "Rising Pune Supergiant",
-    "Gujarat Lions":               "Gujarat Lions",
-    "Kochi Tuskers Kerala":        "Kochi Tuskers Kerala",
+    }
 }
 
 def get_model(model_name='logistic'):
@@ -1150,31 +1096,9 @@ if st.session_state.page == "Analysis":
         crr = score / overs if overs > 0 else 0
         rrr = (runs_left * 6) / balls_left if balls_left > 0 else 0
 
-        # Translate UI names to the names the model was trained on.
-        bat_model_name  = UI_TO_MODEL_NAME.get(batting_team,  batting_team)
-        bowl_model_name = UI_TO_MODEL_NAME.get(bowling_team, bowling_team)
-
-        # Detect teams that have no representation in the training data.
-        # The OneHotEncoder uses handle_unknown='ignore', so these are encoded
-        # as all-zero vectors and the prediction may not reflect real dynamics.
-        unsupported = [t for t, n in
-                       [(batting_team, bat_model_name), (bowling_team, bowl_model_name)]
-                       if n is None]
-        if unsupported:
-            st.warning(
-                f"{' and '.join(unsupported)} "
-                + ("were" if len(unsupported) > 1 else "was")
-                + " not included in the model training data. "
-                "Win probability estimates for this matchup may not be accurate."
-            )
-        # Replace None with the raw UI name so the encoder handles it as an
-        # unknown category (zero-vector) without raising a KeyError.
-        bat_model_name  = bat_model_name  or batting_team
-        bowl_model_name = bowl_model_name or bowling_team
-
         input_df = pd.DataFrame({
-            'batting_team': [bat_model_name],
-            'bowling_team': [bowl_model_name],
+            'batting_team': [batting_team],
+            'bowling_team': [bowling_team],
             'city': ['Mumbai'],
             'runs_left': [runs_left],
             'balls_left': [balls_left],
