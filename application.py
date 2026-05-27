@@ -1488,16 +1488,6 @@ if st.session_state.page == "Analysis":
     st.markdown('<div style="height:32px;"></div>', unsafe_allow_html=True)
 
     teams = list(team_data.keys())
-    cities = [
-    "Mumbai",
-    "Delhi",
-    "Chennai",
-    "Bangalore",
-    "Kolkata",
-    "Hyderabad",
-    "Jaipur",
-    "Mohali"
-]
 
     # ---- INPUT SECTION ----
     st.markdown("""
@@ -1529,7 +1519,6 @@ if st.session_state.page == "Analysis":
     with col2:
         st.markdown('<div class="input-card">', unsafe_allow_html=True)
         st.markdown('<div class="input-label">Match State</div>', unsafe_allow_html=True)
-        city = st.selectbox("Match Venue", cities, key="city")
         target = st.number_input("Target Score", min_value=50, max_value=300, value=180, step=1)
         score = st.number_input("Current Score", min_value=0, max_value=target - 1, value=50, step=1)
         col_ov, col_wk = st.columns(2)
@@ -1626,7 +1615,6 @@ if st.session_state.page == "Analysis":
         input_df = pd.DataFrame({
             'batting_team': [batting_team],
             'bowling_team': [bowling_team],
-            'city': [city],
             'city': [selected_city],
             'runs_left': [runs_left],
             'balls_left': [balls_left],
